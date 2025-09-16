@@ -97,6 +97,12 @@ except ImportError:
     HAS_FLASH_ATTN_HOPPER = False
 
 try:
+    from flash_attn.cute import flash_attn_func as flash_attn_4_forward
+    HAS_FLASH_ATTN_4 = True
+except ImportError:
+    HAS_FLASH_ATTN_4 = False
+
+try:
     from flashinfer.prefill import single_prefill_with_kv_cache
     HAS_FLASHINFER = True
     def get_cuda_arch():
@@ -120,4 +126,3 @@ try:
     HAS_SPARSE_SAGE_ATTENTION = True
 except ImportError:
     HAS_SPARSE_SAGE_ATTENTION = False
-

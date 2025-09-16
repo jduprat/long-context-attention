@@ -6,6 +6,8 @@ from .attention import (
     flash_attn_backward,
     flash_attn3_func_forward,
     flash_attn3_func_backward,
+    flash_attn4_func_forward,
+    flash_attn4_func_backward,
     pytorch_attn_forward,
     pytorch_attn_backward,
     flashinfer_attn_forward,
@@ -16,6 +18,7 @@ from enum import Enum, auto
 
 from yunchang.globals import (
     HAS_FLASH_ATTN,
+    HAS_FLASH_ATTN_4,
     HAS_SAGE_ATTENTION,
     HAS_SPARSE_SAGE_ATTENTION,
 )
@@ -33,6 +36,7 @@ if HAS_SPARSE_SAGE_ATTENTION:
 class AttnType(Enum):
     FA = "fa"
     FA3 = "fa3"
+    FA4 = "fa4"
     FLASHINFER = "flashinfer"
     TORCH = "torch"
     SAGE_AUTO = "sage_auto"
@@ -97,6 +101,16 @@ def select_flash_attn_impl(
                 )
 
             return fn
+        else:
+            raise ValueError(f"Unknown stage: {stage}")
+
+    elif impl_type == AttnType.FA4:
+        if stage == "fwd-only":
+            return flash_attn4_func_forward
+        elif stage == "bwd-only":
+            return flash_attn4_func_backward
+        elif stage == "fwd-bwd":
+            return flash_attn_func # From FA2
         else:
             raise ValueError(f"Unknown stage: {stage}")
 
@@ -237,6 +251,8 @@ __all__ = [
     "flash_attn_backward",
     "flash_attn3_func_forward",
     "flash_attn3_func_forward",
+    "flash_attn4_func_forward",
+    "flash_attn4_func_backward",
     "flashinfer_attn_forward",
     "flashinfer_attn_backbward",
     "AttnType",
