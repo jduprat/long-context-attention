@@ -40,6 +40,7 @@ class AttnType(Enum):
     SAGE_FP16_TRITON = "sage_fp16_triton"
     SAGE_FP8 = "sage_fp8"
     SAGE_FP8_SM90 = "sage_fp8_sm90"
+    SAGE_FP8_SM120 = "sage_fp8_sm120"
     SPARSE_SAGE = "sparse_sage"
 
     @classmethod
@@ -180,6 +181,19 @@ def select_flash_attn_impl(
         if stage == "fwd-only":
             return partial(
                 sageattention.sageattn_qk_int8_pv_fp8_cuda_sm90,
+                pv_accum_dtype="fp32+fp32",
+                tensor_layout="NHD",
+                return_lse=True,
+            )
+        else:
+            raise ValueError(f"Unknown/Unsupported stage: {stage}")
+
+    elif impl_type == AttnType.SAGE_FP8_SM120:
+        if not HAS_SAGE_ATTENTION:
+            raise ImportError("SageAttention is not available!")
+        if stage == "fwd-only":
+            return partial(
+                sageattention.sageattn_qk_int8_pv_fp8_cuda,
                 pv_accum_dtype="fp32+fp32",
                 tensor_layout="NHD",
                 return_lse=True,
